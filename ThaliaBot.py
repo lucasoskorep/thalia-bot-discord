@@ -24,7 +24,8 @@ async def on_ready():
 
 
     return await client.change_presence(
-        game=discord.Game(name='PLAYING STATUS HERE'))  # This is buggy, let us know if it doesn't work.
+        game=discord.Game(name='Warframe BABBYYYYYY')
+    )  # This is buggy, let us know if it doesn't work.
 
 
 # This is a basic example of a call and response command. You tell it do "this" and it does it.
@@ -38,4 +39,4 @@ async def ping(*args):
 
 # After you have modified the code, feel free to delete the line above so it does not keep popping up everytime you initiate the ping commmand.
 
-client.run('')
+client.run('NDEyMTkwODE3OTkwNzM3OTQz.DWGqSQ.1hva_cKDwQcsQvxRwpjJhABqSKo')
