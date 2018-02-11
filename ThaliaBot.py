@@ -38,4 +38,4 @@ async def ping(*args):
 
 # After you have modified the code, feel free to delete the line above so it does not keep popping up everytime you initiate the ping commmand.
 
-client.run('NDExNzQyNDcxMTQwMjc4Mjc2.DWFfGw.CklmyofXxJkk8XRwExVtZwTpocg')
+client.run('')
