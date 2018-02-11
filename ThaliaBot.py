@@ -31,7 +31,13 @@ async def on_ready():
 # This is a basic example of a call and response command. You tell it do "this" and it does it.
 @client.command()
 async def ping(*args):
-    await client.say(":ping_pong: Pong!")
+    acc = 0
+    tmp = ''
+
+    for arg in args:
+        acc+= 1
+        tmp += str(acc) +  arg + '\n'
+    await client.say(":ping_pong: Pong!\n" + tmp)
     # await asyncio.sleep(3)
     # await client.say(
     #     ":")
