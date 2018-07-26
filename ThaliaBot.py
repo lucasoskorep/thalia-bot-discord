@@ -5,7 +5,7 @@ from discord.ext import commands
 import platform
 
 # Here you can modify the bot's prefix and description and wether it sends help in direct messages or not.
-client = Bot(description="Thalia Bot description", command_prefix="!", pm_help=False)
+client = Bot(description="Thalia Bot description", command_prefix="", pm_help=False)
 
 
 # This is what happens everytime the bot launches. In this case, it prints information like server count, user count the bot is connected to, and the bot id in the console.
@@ -41,6 +41,18 @@ async def ping(*args):
     # await asyncio.sleep(3)
     # await client.say(
     #     ":")
+
+@client.event
+async def on_message(message):
+
+    print('\n\n\n')
+    print(message.content)
+    print(message.channel)
+    print(message.author)
+    print(client.user)
+    print(message.author == client.user)
+    if message.author != client.user:
+        await client.send_message(message.channel, message.content)
 
 
 # After you have modified the code, feel free to delete the line above so it does not keep popping up everytime you initiate the ping commmand.
