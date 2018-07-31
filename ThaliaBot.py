@@ -4,6 +4,9 @@ from discord.ext.commands import Bot
 from discord.ext import commands
 import platform
 
+
+from pprint import pprint
+
 # Here you can modify the bot's prefix and description and wether it sends help in direct messages or not.
 client = Bot(description="Thalia Bot description", command_prefix="", pm_help=False)
 
@@ -42,19 +45,36 @@ async def ping(*args):
     # await client.say(
     #     ":")
 
+
+
+def add_message_to_database(message):
+    print(message)
+
+
 @client.event
 async def on_message(message):
-
+    if message.author.id == client.user.id or message.author.bot:
+        return
     print('\n\n\n')
-    print(message.content)
-    print(message.channel)
-    print(message.author)
-    print(client.user)
-    print(message.author == client.user)
-    if message.author != client.user:
-        await client.send_message(message.channel, message.content)
+    #Grab message content
+    # message_content = message.content
+    # author = message.author
+    # timestamp = message.timestamp
+    # channel = message.channel
+    # mentions = message.mentions
+    # channel_mentions = message.channel_mentions
+    # server = message.server
+    if "bot" in message.content.lower():
+        await client.send_message(message.channel, "HEY STOP TALKING ABOUT ME")
 
+    print(message.author.id)
+    print(message.author == client.user)
+    # try:
+    #     # await client.send_message(message.channel, message.content)
+    # except Exception as e:
+    #     #Add in tracing and failure warning for myself here.
+    #     print(e)
 
 # After you have modified the code, feel free to delete the line above so it does not keep popping up everytime you initiate the ping commmand.
 
-client.run('NDEyMTkwODE3OTkwNzM3OTQz.DWGqSQ.1hva_cKDwQcsQvxRwpjJhABqSKo')
+client.run('NDEyMTkwODE3OTkwNzM3OTQz.DkFYdA.mVu_HAZZX2Ya-CbLqH13uQjNjwE')
