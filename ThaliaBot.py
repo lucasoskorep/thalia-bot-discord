@@ -1,15 +1,18 @@
-import discord
 import asyncio
-
-from discord.ext.commands import Bot
-from discord.ext import commands
+import discord
 import platform
 import os
-import sys
 
-from pprint import pprint
+from discord.ext.commands import Bot
+from discord import channel, message
 from dbmanager.dbmanager import dbmanager
-from time import sleep
+from dotenv import load_dotenv
+
+import logging
+logging.basicConfig(level=logging.DEBUG, filename="server.log")
+logger = logging.getLogger(__name__)
+
+load_dotenv()
 # Here you can modify the bot's prefix and description and wether it sends help in direct messages or not.
 client = Bot(description="Thalia Bot description", command_prefix="", pm_help=True)
 
@@ -19,6 +22,7 @@ username = os.getenv('MYSQL_USERNAME', 'root')
 password = os.getenv('MYSQL_PASSWORD', 'password')
 address = os.getenv('MYSQL_ADDRESS', 'localhost:3306')
 discord_db = os.getenv('MYSQL_DISCORD_DB', 'THALIA')
+
 print(client_key, username, password, discord_db, address)
 
 # set up the sqlalchemy session object to be used in a threaded manor.
@@ -42,18 +46,17 @@ startup = True
 # Do not mess with it because the bot can break, if you wish to do so, please consult me or someone trusted.
 @client.event
 async def on_ready():
-    print('Logged in as ' + client.user.name + ' (ID:' + client.user.id + ') | Connected to ' + str(
-        len(client.servers)) + ' servers | Connected to ' + str(len(set(client.get_all_members()))) + ' users')
-    print('--------')
-    print('Current Discord.py Version: {} | Current Python Version: {}'.format(discord.__version__,
-                                                                               platform.python_version()))
-    print('--------')
-    print('Use this link to invite {}:'.format(client.user.name))
-    print('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=8'.format(client.user.id))
-    print('--------')
+    print(f'Logged in as {client.user.name} ID:  {client.user.id}) | Connected to \n'
+          f'{len(client.guilds)} servers | Connected to {len(set(client.get_all_members()))} users\n'
+          f'--------\n'
+          f'Current Discord.py Version: {discord.__version__} | Current Python Version: { platform.python_version()}\n'
+          f'--------\n'
+          f'Use this link to invite {client.user.name}:\n'
+          f'https://discordapp.com/oauth2/authorize?client_id={client.user.id}&scope=bot&permissions=8'
+    )
 
     return await client.change_presence(
-        game=discord.Game(name='Warframe BABBYYYYYY')
+        activity=discord.Game(name='Warframe BABBYYYYYY')
     )  # This is buggy, let us know if it doesn't work.
 
 
@@ -69,29 +72,31 @@ async def ping(*args):
     await client.say(":ping_pong: Pong!\n" + tmp)
 
 
-
-async def test_channel(channel, message_id):
-    messages_db_size = 10000
+import sys
+async def parse_channel(channel, message_id):
+    messages_db_size = 1000
     counter = 0
     messages = []
 
-    print("STARTING CHANNEL", channel)
+    print("STARTING CHANNEL", channel, file=sys.stdout)
 
     #drop the column's messages from the messages tab.
     try:
-        async for message in client.logs_from(channel, limit=1000):
+        async for message in channel.history(limit=None):
+            #TODO: Rework this so that the caching is done behind the scenes
+            # \- user should be checked for and added here but hte direct DB and cache calls should be obfuscates
             if int(message.author.id) not in users:
                 db_man.create_user(
                     discord_id=message.author.id,
                     name=str(message.author)
                 )
                 users[int(message.author.id)] = str(message.author)
-            if int(message.server.id) not in servers:
+            if int(message.guild.id) not in servers:
                 db_man.create_server(
-                    discord_id=message.server.id,
-                    name=str(message.server)
+                    discord_id=message.guild.id,
+                    name=str(message.guild)
                 )
-                servers[int(message.server.id)] = str(message.server)
+                servers[int(message.guild.id)] = str(message.guild)
 
             # create channel if missing
             if int(message.channel.id) not in channels:
@@ -105,17 +110,20 @@ async def test_channel(channel, message_id):
                 messages.append(
                     {
                         'content':message.content,
-                        'timestamp': message.timestamp.utcnow().timestamp(),
+                        'timestamp': message.created_at.timestamp(),
                         'author_id':message.author.id,
-                        'server_id':message.server.id,
+                        'server_id':message.guild.id,
                         'channel_id':message.channel.id,
                         'message_id':message.id
                     }
                 )
             if counter > messages_db_size:
+                # for m in messages:
+                #     print(f"MESSAGE_ID TO IMPORT IS - {m}")
                 db_man.create_messages(messages)
                 del messages
                 messages = []
+                counter = 0
             counter+=1
         if messages:
             db_man.create_messages(messages)
@@ -123,7 +131,8 @@ async def test_channel(channel, message_id):
 
         #update the column to being finished.
     except Exception as e:
-        print(e)
+        print("ERROR THROWN IN THE MESSAGE PARSING")
+        logger.exception(e)
 
     print("ENDED CHANNEL", channel)
 
@@ -165,12 +174,12 @@ def process_message(message):
         )
         users[int(message.author.id)] = str(message.author)
     # create server if missing
-    if int(message.server.id) not in servers:
+    if int(message.guild.id) not in servers:
         db_man.create_server(
-            discord_id=message.server.id,
-            name=str(message.server)
+            discord_id=message.guild.id,
+            name=str(message.guild)
         )
-        servers[int(message.server.id)] = str(message.server)
+        servers[int(message.guild.id)] = str(message.guild)
 
     # create channel if missing
     if int(message.channel.id) not in channels:
@@ -184,7 +193,7 @@ def process_message(message):
     if startup == True:
         startup = False
         text_channel_list = []
-        for server in client.servers:
+        for server in client.guilds:
             for channel in server.channels:
                 if str(channel.type) == 'text':
                     text_channel_list.append(channel)
@@ -192,23 +201,24 @@ def process_message(message):
         print("Starting channel syncing")
         print(text_channel_list)
         for channel in set(text_channel_list):
-            print("Started one channel")
-            asyncio.run_coroutine_threadsafe(test_channel(channel, 0), client.loop)
-            # sleep(20)
+            #TODO: Only go through channels which are known good
+            print(f"Starting channel {channel.name}")
+            asyncio.run_coroutine_threadsafe(parse_channel(channel, message.id), client.loop)
 
 
     db_man.create_message(
         content=message.content,
         message_id=message.id,
-        timestamp=message.timestamp.utcnow().timestamp(),
+        timestamp=message.created_at.utcnow().timestamp(),
         author_id=message.author.id,
-        server_id=message.server.id,
+        server_id=message.guild.id,
         channel_id=message.channel.id
     )
 
 
 @client.event
 async def on_message(message):
+    print(f"MESSAGE RECIEVED - {message}")
     if message.author.id == client.user.id or message.author.bot:
         return
     print('\n\n\n')

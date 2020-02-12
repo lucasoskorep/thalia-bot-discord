@@ -4,7 +4,7 @@ from sqlalchemy import Column, ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
-from sqlalchemy.types import Text, String, BIGINT, DECIMAL
+from sqlalchemy.types import Text, String, BIGINT, DECIMAL, TIMESTAMP, FLOAT
 
 Base = declarative_base()
 
@@ -75,7 +75,7 @@ class Message(Base):
     # Notice that each column is also a normal Python instance attribute.
 
     content = Column(Text, nullable=False)
-    timestamp = Column(DECIMAL, nullable=False)
+    timestamp = Column(DECIMAL , nullable=False)
     message_id = Column(BIGINT, unique=True, nullable=False, primary_key=True)
     author_id = Column(BIGINT, ForeignKey('user.discord_id'), nullable=False, index=True)
     server_id = Column(BIGINT, ForeignKey('server.discord_id'), nullable=False, index = True)
@@ -94,6 +94,10 @@ class Message(Base):
 # Grab the password from the environment
 # Grab the username from the environment
 # Grab the address from the environment
+
+from dotenv import load_dotenv
+
+load_dotenv()
 client_key = os.getenv('DISCORD_CLIENT_KEY', '0')
 username = os.getenv('MYSQL_USERNAME', 'root')
 password = os.getenv('MYSQL_PASSWORD', 'password')

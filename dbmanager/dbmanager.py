@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 
-from dbmanager.db_classes.db_classes import User, Server, Channel, Message
+from dbmanager.db_classes import User, Server, Channel, Message
 import threading
 
 lock = threading.Lock()
@@ -99,7 +99,7 @@ class dbmanager(object):
                 )
                 sess.add(new_message)
             print(
-                "=============================================COMMITTING CHANNEL X=================================================================================")
+                f"COMMITTING CHANNEL - {messages[0]['channel_id']}")
             # print(messages)
             print(len(messages))
 
@@ -114,9 +114,6 @@ class dbmanager(object):
         messages = []
         for message in sess.query(Message):
             messages.append(message)
-            message.author
-            message.channel
-            message.server
 
         Session.remove()
         return messages
