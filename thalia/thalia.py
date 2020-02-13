@@ -1,5 +1,4 @@
 import asyncio
-import sys
 from dbmanager.tables import *
 
 
@@ -25,6 +24,12 @@ class Thalia(object):
             asyncio.run_coroutine_threadsafe(self.parse_channel(channel), self.bot.loop)
 
     async def parse_channel(self, channel):
+        """
+        TODO: Why is this fucker async
+
+        :param channel:
+        :return:
+        """
         messages_db_size = 1000
         counter = 0
         messages = []
