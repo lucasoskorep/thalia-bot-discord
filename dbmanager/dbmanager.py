@@ -22,6 +22,7 @@ class dbmanager(object):
     def create_message(self, message):
         global Session
         sess = Session()
+        
         sess.add(message)
         sess.commit()
         Session.remove()
@@ -117,7 +118,6 @@ class dbmanager(object):
         sess = Session()
 
         new_person = User(discord_id=69, name="user")
-
         sess.add(new_person)
         sess.commit()
 
