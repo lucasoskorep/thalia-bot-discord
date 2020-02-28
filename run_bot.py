@@ -29,7 +29,7 @@ db_man = dbmanager(
     db_location=address,
     db_name=discord_db
 )
-
+#TODO: add in database creation script to the docker image/to run automatically when this starts
 thalia = Thalia(db_man, bot, logger)
 @bot.event
 async def on_ready():
@@ -45,7 +45,6 @@ async def on_ready():
           f'Use this link to invite {bot.user.name}:\n'
           f'https://discordapp.com/oauth2/authorize?client_id={bot.user.id}&scope=bot&permissions=8'
     )
-    # thalia.process_all_servers()
     return await bot.change_presence(
         activity=discord.Game(name='Warframe BABBYYYYYY')
     )
@@ -58,6 +57,17 @@ async def ping(context):
     :return: None
     """
     await context.send(":ping_pong: Pong!\n")
+
+@bot.command()
+async def repopulate(context):
+    """
+    Simple ping command from discord.
+    :param context: context of the discord message.
+    :return: None
+    """
+    thalia.process_all_servers()
+
+    await context.send("REPOPULATING SERVER HISTORY - THIS MAY TAKE A SECOND!")
 
 @bot.event
 async def on_message(message):

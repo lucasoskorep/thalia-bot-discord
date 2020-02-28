@@ -1,7 +1,7 @@
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy.types import Text, BIGINT, FLOAT
+from sqlalchemy.types import Text, BIGINT, FLOAT, DECIMAL
 
 _base = declarative_base()
 
@@ -20,6 +20,7 @@ class Channel(_base):
 
     discord_id = Column(BIGINT, primary_key=True, nullable=False, unique=True)
     name = Column(Text)
+    server_id = Column(BIGINT, ForeignKey('server.discord_id'),  nullable=False, index=True)
 
     def __repr__(self):
         return f"<Channel(name='{self.name}', discord_id='{self.discord_id}')>"
@@ -41,7 +42,7 @@ class Message(_base):
     # Notice that each column is also a normal Python instance attribute.
 
     content = Column(Text, nullable=False)
-    timestamp = Column(FLOAT, nullable=False)
+    timestamp = Column(DECIMAL, nullable=False)
     message_id = Column(BIGINT, unique=True, nullable=False, primary_key=True)
     author_id = Column(BIGINT, ForeignKey('user.discord_id'), nullable=False, index=True)
     server_id = Column(BIGINT, ForeignKey('server.discord_id'), nullable=False, index=True)

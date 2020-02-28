@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 
-from dbmanager.tables import User, Server, Channel, Message
+from dbmanager.tables import User, Server, Channel, Message, _base
 import threading
 
 lock = threading.Lock()
@@ -13,6 +13,7 @@ class dbmanager(object):
     def __init__(self, username, password, db_location, db_name):
         global Session
         engine = create_engine('mysql+pymysql://' + username + ':' + password + '@' + db_location + '/' + db_name)
+        _base.metadata.create_all(engine)
         self.session_factory = sessionmaker(bind=engine)
         Session = scoped_session(self.session_factory)
         self.users = self.get_user_cache()
@@ -22,18 +23,18 @@ class dbmanager(object):
     def create_message(self, message):
         global Session
         sess = Session()
-        
+
         sess.add(message)
         sess.commit()
         Session.remove()
 
-    def create_messages(self, messages):
+    def create_messages(self, messages, channel):
         with lock:
             global Session
             sess = Session()
             for message in messages:
-                sess.add(message)
-            print(f"COMMITTING CHANNEL - {messages[0]['channel_id']}"
+                sess.merge(message)
+            print(f"COMMITTING CHANNEL - {channel.name}"
                   f"Messages added - {len(messages)}")
             sess.commit()
             Session.remove()
@@ -73,11 +74,12 @@ class dbmanager(object):
 
         Session.remove()
 
-    def create_channel(self, discord_id, name):
+    def create_channel(self, discord_id, name, server_id):
         global Session
         sess = Session()
 
         new_channel = Channel(
+            server_id=server_id,
             discord_id=discord_id,
             name=name
         )
@@ -125,7 +127,7 @@ class dbmanager(object):
         sess.add(new_server)
         sess.commit()
 
-        new_channel = Channel(discord_id=696969, name="channel")
+        new_channel = Channel(server_id=6969, discord_id=696969, name="channel")
         sess.add(new_channel)
         sess.commit()
 
@@ -143,9 +145,9 @@ class dbmanager(object):
         Session.remove()
 
     def validate_message(self, message):
-        self.validate_user(message.user)
         self.validate_guild(message.guild)
-        self.validate_channel(message.channel)
+        self.validate_channel(message.channel, message.guild)
+        self.validate_user(message.author)
 
     def validate_user(self, author):
         if int(author.id) not in self.users:
@@ -163,11 +165,12 @@ class dbmanager(object):
             )
             self.servers[int(guild.id)] = str(guild)
 
-    def validate_channel(self, channel):
+    def validate_channel(self, channel, guild):
         if int(channel.id) not in self.channels:
             self.create_channel(
                 discord_id=channel.id,
-                name=str(channel)
+                name=str(channel),
+                server_id=guild.id
             )
             self.channels[int(channel.id)] = str(channel)
             print("STARTING CHANNEL SEARCH")
