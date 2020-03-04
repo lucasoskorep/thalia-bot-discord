@@ -63,6 +63,10 @@ class Thalia(object):
         self.db_man.create_message(get_message_entity(message))
         print("finished saving message to DB")
 
+    def get_guild_stats(self, message):
+        print(f"Getting guild stats")
+        self.db_man.get_channel_stats(message.channel.id)
+
 
 def get_message_entity(message):
     return Message(

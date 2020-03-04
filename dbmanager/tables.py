@@ -52,5 +52,4 @@ class Message(_base):
     channel = relationship('Channel', foreign_keys=[channel_id])
 
     def __repr__(self):
-        return "<Message(content='%s', messsage_id='%s', author_id='%s', server_id='%s', channel_id='%s')>" % (
-            self.content, self.message_id, self.author_id, self.server_id, self.channel_id)
+        return f"<Message(content='{self.content}', timestamp = '{self.timestamp}', messsage_id='{self.message_id}', author_id='{self.author_id}', server_id='{self.server_id}', channel_id='{self.channel_id}')>"

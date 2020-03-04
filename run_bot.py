@@ -86,10 +86,11 @@ async def on_message(message):
     thalia.process_new_message(message)
 
     if "bot" in message.content.lower():
-        await message.channel.send(message.channel, "HEY STOP TALKING ABOUT ME")
+        await message.channel.send("HEY STOP TALKING ABOUT ME")
 
     print(message.author.id)
     print(message.author == bot.user)
+    thalia.get_guild_stats(message)
 
 
 bot.run(client_key)

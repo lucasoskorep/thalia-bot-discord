@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 
@@ -174,3 +174,15 @@ class dbmanager(object):
             )
             self.channels[int(channel.id)] = str(channel)
             print("STARTING CHANNEL SEARCH")
+
+    def get_channel_stats(self, channelID):
+        global Session
+        sess = Session()
+        print("attempting to print all messages")
+        print(channelID)
+        # Get the channel specific stats - pull basics from server, and channel tables, and then print last 3 messages from channel.
+        for message in sess.query(Message).filter(Message.channel_id == channelID).order_by(desc(Message.timestamp)).limit(3):
+            print(message)
+        #     Channel stats
+
+        Session.remove()
