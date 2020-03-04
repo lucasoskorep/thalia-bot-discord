@@ -183,6 +183,7 @@ class dbmanager(object):
         # Get the channel specific stats - pull basics from server, and channel tables, and then print last 3 messages from channel.
         for message in sess.query(Message).filter(Message.channel_id == channelID).order_by(desc(Message.timestamp)).limit(3):
             print(message)
+
         #     Channel stats
 
         Session.remove()
