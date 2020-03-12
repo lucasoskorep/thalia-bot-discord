@@ -58,6 +58,8 @@ class Thalia(object):
         print(f"getting training data for - {user.name, user.id}")
 
 
+
+
     @staticmethod
     def get_message_entity(message):
         return Message(

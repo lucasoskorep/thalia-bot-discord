@@ -163,6 +163,10 @@ class dbmanager(object):
             self.channels[int(channel.id)] = str(channel)
             print("STARTING CHANNEL SEARCH")
 
+    def get_training_dataset(self, userID):
+        with self.create_session as sess:
+            for message in sess.query(Message).filter().order_by().limit(3):
+
     def get_channel_stats(self, channelID):
 
         with self.create_session as sess:
