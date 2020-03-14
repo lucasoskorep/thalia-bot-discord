@@ -29,8 +29,10 @@ class Thalia(object):
                 self.db_man.create_messages(messages, channel)
             print(f"FINISHED PARSING CHANNEL - {channel}")
         except Exception as e:
+            print("ERROR")
             print(e)
-            self.logger.exception(e)
+            if self.logger:
+                self.logger.exception(e)
 
     def process_new_message(self, message):
         self.db_man.validate_message(message)

@@ -11,10 +11,9 @@ from owncloud import Client
 from thalia import Thalia
 
 load_dotenv()
-logging.basicConfig(level=logging.DEBUG, filename="server.log")
-logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.DEBUG, filename="server.log")
+# logger = logging.getLogger(__name__)
 
-# Here you can modify the bot's prefix and description and wether it sends help in direct messages or not.
 bot = Bot(description="Thalia Bot description", command_prefix="!", pm_help=True)
 
 # Set up environment variables for the Database
@@ -35,7 +34,7 @@ db_man = dbmanager(
 oc = Client('https://nextcloud.chaoticdevelopment.com/')
 oc.login(oc_username, oc_password)
 
-thalia = Thalia(db_man, bot, oc, logger)
+thalia = Thalia(db_man, bot, oc)
 
 
 @bot.event

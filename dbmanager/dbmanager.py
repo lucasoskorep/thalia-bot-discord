@@ -3,9 +3,6 @@ from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 
 from dbmanager.tables import User, Server, Channel, Message, _base
-import threading
-
-lock = threading.Lock()
 
 class session_manager_wrapper(object):
     def __init__(self, session):
@@ -38,7 +35,7 @@ class dbmanager(object):
             sess.commit()
 
     def create_messages(self, messages, channel):
-        with lock, self.create_session as sess:
+        with self.create_session as sess:
             for message in messages:
                 sess.merge(message)
             print(f"COMMITTING CHANNEL - {channel.name}"
@@ -166,6 +163,7 @@ class dbmanager(object):
     def get_training_dataset(self, userID):
         with self.create_session as sess:
             for message in sess.query(Message).filter().order_by().limit(3):
+                print(message)
 
     def get_channel_stats(self, channelID):
 
