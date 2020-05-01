@@ -1,7 +1,11 @@
 import asyncio
-from discord.channel import ChannelType
-from dbmanager.tables import *
 from uuid import uuid4
+
+from discord.channel import ChannelType
+
+from dbmanager.tables import *
+
+from .training_set_formating import format_training_messages
 
 class Thalia(object):
     def __init__(self, db_man, bot, oc = None, logger=None):
@@ -57,7 +61,12 @@ class Thalia(object):
             return None
 
     def get_training_data(self, user):
-        print(f"getting training data for - {user.name, user.id}")
+        text_channel_list = []
+        for channel in self.bot.get_all_channels():
+            if channel.type == ChannelType.text and user.id in [member.id for member in channel.members]:
+                text_channel_list.append(channel.id)
+        return format_training_messages(user.id, self.db_man.get_training_dataset(user.id, text_channel_list))
+
 
 
 

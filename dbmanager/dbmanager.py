@@ -160,10 +160,18 @@ class dbmanager(object):
             self.channels[int(channel.id)] = str(channel)
             print("STARTING CHANNEL SEARCH")
 
-    def get_training_dataset(self, userID):
-        with self.create_session as sess:
-            for message in sess.query(Message).filter().order_by().limit(3):
-                print(message)
+    def get_training_dataset(self, user_id, channel_ids):
+        # get channel ids that a user participates in.
+        # grab the messages from those channels
+        # for each channel parse messages - save user responding to other people to a file.
+        # create tmp csv file in memory
+        # send file out to the client
+        with self.create_session as sess:#.filter(Message.author_id == user_id)
+            print("getting the training set")
+            messages = []
+            for message in sess.query(Message).filter(Message.channel_id.in_(channel_ids)).order_by(Message.channel_id):
+                messages.append(message)
+            return messages
 
     def get_channel_stats(self, channelID):
 

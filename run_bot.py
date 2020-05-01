@@ -7,7 +7,8 @@ from dbmanager.dbmanager import dbmanager
 from discord.ext.commands import Bot
 from discord import File
 from dotenv import load_dotenv
-from owncloud import Client
+from uuid import uuid4
+from owncloud import Client, ShareInfo
 from thalia import Thalia
 
 load_dotenv()
@@ -36,7 +37,6 @@ oc.login(oc_username, oc_password)
 
 thalia = Thalia(db_man, bot, oc)
 
-
 @bot.event
 async def on_ready():
     """
@@ -58,10 +58,18 @@ async def on_ready():
 
 @bot.command()
 async def get_training_data(context):
-    filename = "./server.log"
-    with open(filename) as f:
-        f = File(f, filename)
-        await context.send("Here is your file", file=f)
+    print(context.message.author.id)
+    df = thalia.get_training_data(context.message.author)
+    filename = f"{uuid4()}.csv"
+    remote_filename = f"thalia_training_data/{filename}"
+    df.to_csv(filename, index=False, quoting=2)
+    print("Throwing file to own cloud")
+    oc.put_file(remote_filename, filename)
+    print("Getting file link from own cloud")
+    link = oc.share_file_with_link(remote_filename)
+    await context.send(f"Here is your file: {link.get_link()}")
+    # change the remote directory to a docker variable if possible.
+    # Delete local file
 
 
 @bot.command()
@@ -82,6 +90,7 @@ async def repopulate(context):
     :return: None
     """
     thalia.process_all_servers()
+
     await context.send("REPOPULATING SERVER HISTORY - THIS MAY TAKE A SECOND!")
 
 
@@ -97,8 +106,8 @@ async def on_message(message):
         return
     await bot.process_commands(message)
     thalia.process_new_message(message)
-    thalia.get_guild_stats(message)
-    thalia.get_training_data(message.author)
+    # thalia.get_guild_stats(message)
+    # thalia.get_training_data(message.author)
 
 
 bot.run(client_key)
