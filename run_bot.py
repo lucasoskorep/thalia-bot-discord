@@ -91,7 +91,7 @@ async def repopulate(context):
     """
     thalia.process_all_servers()
 
-    await context.send("REPOPULATING SERVER HISTORY - THIS MAY TAKE A SECOND!")
+    await context.send("Repopulating server history - this will take a few minutes. ")
 
 
 @bot.event

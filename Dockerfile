@@ -11,6 +11,8 @@ ENV MYSQL_USERNAME root
 ENV MYSQL_PASSWORD password
 ENV MYSQL_ADDRESS host.docker.internal:3306
 ENV MYSQL_DISCORD_DB THALIA
+ENV NEXTCLOUD_USERNAME username
+ENV NEXTCLOUD_PASSWORD password
 
 RUN apk add build-base
 RUN pip install -r requirements.txt
