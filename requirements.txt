@@ -5,3 +5,4 @@ numpy==1.16.4
 python-dotenv==0.13.0
 pymysql==0.9.3
 pyocclient==0.4
+cryptography==2.9.2
