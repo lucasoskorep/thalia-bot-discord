@@ -37,6 +37,7 @@ oc.login(oc_username, oc_password)
 
 thalia = Thalia(db_man, bot, oc)
 
+
 @bot.event
 async def on_ready():
     """
@@ -69,7 +70,7 @@ async def get_training_data(context):
     link = oc.share_file_with_link(remote_filename)
     await context.send(f"Here is your file: {link.get_link()}")
     # change the remote directory to a docker variable if possible.
-    # Delete local file
+    # Delete local file / change it to a memory only file
 
 
 @bot.command()
